@@ -3,8 +3,31 @@
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
 
+variables:
+  ARM_PASS: $(adminPass)
+
 trigger:
 - none
 
 pool:
   vmImage: 'ubuntu-latest'
+
+- task: CopyFiles@2
+  inputs:
+    SourceFolder: 'quickstarts/microsoft.web/webapp-linux-managed-mysql/'
+    Contents: '**'
+    TargetFolder: '$(Build.ArtifactStagingDirectory)'
+
+- task: AzureResourceManagerTemplateDeployment@3
+  inputs:
+    deploymentScope: 'Resource Group'
+    azureResourceManagerConnection: 'Azure Pass - Sponsorship(e1b982b0-d2fd-4ff2-abe2-5fd72625a64a)'
+    subscriptionId: 'e1b982b0-d2fd-4ff2-abe2-5fd72625a64a'
+    action: 'Create Or Update Resource Group'
+    resourceGroupName: 'ARMPipelinesLAMP-rg'
+    location: 'East US'
+    templateLocation: 'Linked artifact'
+    csmFile: '$(Build.ArtifactStagingDirectory)/azuredeploy.json'
+    csmParametersFile: '$(Build.ArtifactStagingDirectory)/azuredeploy.parameters.json'
+    overrideParameters: '-siteName $(siteName) -administratorLogin $(adminUser) -administratorLoginPassword $(ARM_PASS)'
+    deploymentMode: 'Incremental'
