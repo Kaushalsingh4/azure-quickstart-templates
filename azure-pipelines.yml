@@ -12,6 +12,7 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'
 
+steps:
 - task: CopyFiles@2
   inputs:
     SourceFolder: 'quickstarts/microsoft.web/webapp-linux-managed-mysql/'
